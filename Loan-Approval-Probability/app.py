@@ -5,6 +5,7 @@ import numpy as np
 import joblib
 import plotly.express as px
 import plotly.graph_objects as go
+import os
 
 # ==========================================
 # 1. PAGE SETUP & STYLING
@@ -25,21 +26,22 @@ st.markdown(
     /* Global Styling */
     html, body, [class*="css"] {
         font-family: 'Outfit', sans-serif;
+        color: #334155;
     }
     
     /* Header styling */
     .title-container {
         padding: 2rem;
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 255, 0.95) 100%);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
         border-radius: 20px;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     }
     .gradient-title {
-        background: linear-gradient(90deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+        background: linear-gradient(90deg, #4f46e5 0%, #9333ea 50%, #db2777 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-size: 2.8rem;
@@ -47,7 +49,7 @@ st.markdown(
         margin: 0;
     }
     .subtitle {
-        color: #94a3b8;
+        color: #475569;
         font-size: 1.1rem;
         margin-top: 0.5rem;
         font-weight: 300;
@@ -55,21 +57,21 @@ st.markdown(
     
     /* Glassmorphic card styling */
     .glass-card {
-        background: rgba(30, 41, 59, 0.45);
+        background: rgba(255, 255, 255, 0.75);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
         border-radius: 16px;
         padding: 1.8rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
     }
     
     .section-header {
         font-size: 1.3rem;
         font-weight: 600;
-        color: #f8fafc;
-        border-left: 4px solid #6366f1;
+        color: #1e293b;
+        border-left: 4px solid #4f46e5;
         padding-left: 10px;
         margin-bottom: 1.2rem;
         margin-top: 0.5rem;
@@ -77,8 +79,8 @@ st.markdown(
     
     /* Metrics display */
     .live-metric-box {
-        background: rgba(99, 102, 241, 0.08);
-        border: 1px solid rgba(99, 102, 241, 0.2);
+        background: rgba(79, 70, 229, 0.05);
+        border: 1px solid rgba(79, 70, 229, 0.2);
         border-radius: 12px;
         padding: 1rem;
         text-align: center;
@@ -86,16 +88,16 @@ st.markdown(
     }
     .live-metric-box:hover {
         transform: translateY(-2px);
-        border-color: rgba(99, 102, 241, 0.4);
+        border-color: rgba(79, 70, 229, 0.4);
     }
     .live-metric-value {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #818cf8;
+        color: #4f46e5;
     }
     .live-metric-label {
         font-size: 0.85rem;
-        color: #94a3b8;
+        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin-top: 0.2rem;
@@ -106,14 +108,14 @@ st.markdown(
         border-radius: 16px;
         padding: 2rem;
         margin-top: 1rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     }
     .result-approved {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.15) 100%);
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%);
         border: 1px solid rgba(16, 185, 129, 0.4);
     }
     .result-rejected {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.15) 100%);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
         border: 1px solid rgba(239, 68, 68, 0.4);
     }
     
@@ -124,17 +126,15 @@ st.markdown(
         margin-bottom: 0.5rem;
     }
     .status-badge-approved {
-        color: #34d399;
-        text-shadow: 0 0 15px rgba(52, 211, 153, 0.3);
+        color: #059669;
     }
     .status-badge-rejected {
-        color: #f87171;
-        text-shadow: 0 0 15px rgba(248, 113, 113, 0.3);
+        color: #dc2626;
     }
     
     /* Progress/Meter styling */
     .meter-container {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: rgba(0, 0, 0, 0.1);
         border-radius: 8px;
         height: 12px;
         width: 100%;
@@ -155,7 +155,7 @@ st.markdown(
     /* Custom spacing & clean dividers */
     .custom-divider {
         height: 1px;
-        background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+        background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%);
         margin: 2rem 0;
     }
     </style>
@@ -169,8 +169,9 @@ st.markdown(
 @st.cache_resource
 def load_ml_pipeline():
     try:
-        preprocessor = joblib.load('loan_preprocessor.joblib')
-        model = joblib.load('loan_tree_model.joblib')
+        base_path = os.path.dirname(__file__)
+        preprocessor = joblib.load(os.path.join(base_path, 'loan_preprocessor.joblib'))
+        model = joblib.load(os.path.join(base_path, 'loan_tree_model.joblib'))
         return preprocessor, model
     except Exception as e:
         st.error(f"Failed to load machine learning artifacts: {e}")
@@ -179,7 +180,8 @@ def load_ml_pipeline():
 @st.cache_data
 def load_historical_data():
     try:
-        df = pd.read_csv('loan_approval.csv')
+        base_path = os.path.dirname(__file__)
+        df = pd.read_csv(os.path.join(base_path, 'loan_approval.csv'))
         return df
     except Exception as e:
         st.error(f"Failed to load historical data: {e}")
@@ -251,7 +253,7 @@ with tab_eligibility:
         applicant_income = st.number_input(
             "Applicant Annual Income ($)", 
             min_value=0, 
-            max_value=1000000,
+            max_value=None,
             value=65000, 
             step=5000,
             help="Gross annual income of the primary applicant."
@@ -259,7 +261,7 @@ with tab_eligibility:
         coapplicant_income = st.number_input(
             "Co-applicant Annual Income ($)", 
             min_value=0, 
-            max_value=1000000,
+            max_value=None,
             value=0, 
             step=5000,
             help="Gross annual income of the co-applicant (if applicable)."
@@ -270,7 +272,7 @@ with tab_eligibility:
         loan_amount = st.number_input(
             "Loan Amount Requested ($)", 
             min_value=5000, 
-            max_value=2000000,
+            max_value=None,
             value=180000, 
             step=10000,
             help="Total principal requested."
@@ -624,7 +626,7 @@ with tab_calculator:
         c_amount = st.number_input(
             "Loan Principal Amount ($)", 
             min_value=5000, 
-            max_value=2000000, 
+            max_value=None, 
             value=int(loan_amount), 
             step=5000
         )
