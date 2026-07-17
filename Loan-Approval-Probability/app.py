@@ -401,7 +401,7 @@ with tab_eligibility:
                         f"""
                         <div class="result-card result-approved">
                             <div class="status-badge status-badge-approved">✅ APPLICATION APPROVED</div>
-                            <p style="font-size: 1.1rem; color: #e2e8f0; margin-bottom: 1.5rem;">
+                            <p style="font-size: 1.1rem; color: #000000; margin-bottom: 1.5rem;">
                                 The algorithmic underwriting model has approved this profile with a <strong>{conf:.1f}%</strong> confidence rating.
                             </p>
                             <div class="meter-container">
@@ -423,7 +423,7 @@ with tab_eligibility:
                         f"""
                         <div class="result-card result-rejected">
                             <div class="status-badge status-badge-rejected">⚠️ APPLICATION REJECTED</div>
-                            <p style="font-size: 1.1rem; color: #e2e8f0; margin-bottom: 1.5rem;">
+                            <p style="font-size: 1.1rem; color: #000000; margin-bottom: 1.5rem;">
                                 The algorithmic underwriting model has rejected this profile with a <strong>{conf:.1f}%</strong> rejection probability.
                             </p>
                             <div class="meter-container">
